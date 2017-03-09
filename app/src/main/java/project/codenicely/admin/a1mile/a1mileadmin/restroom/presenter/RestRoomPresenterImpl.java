@@ -2,7 +2,9 @@ package project.codenicely.admin.a1mile.a1mileadmin.restroom.presenter;
 
 
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.OnRestRoomApiResponse;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.OnRestRoomStatusUpdateResponse;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomData;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomStatusUpdateData;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.provider.RestRoomProvider;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.view.RestRoomView;
 
@@ -48,7 +50,29 @@ public class RestRoomPresenterImpl implements RestRoomPresenter {
     }
 
     @Override
-    public void requestRestroomStatusUpdate(String admin_token, String restroom_id, boolean verify, int position) {
+    public void requestRestroomStatusUpdate(String adminToken, String restroomId, boolean verify, int position) {
+        restRoomView.showProgressDialog(true);
+        restRoomProvider.requestRestroomStatusUpdate(adminToken, restroomId, verify, position,
+                new OnRestRoomStatusUpdateResponse() {
+                    @Override
+                    public void onSuccess(RestRoomStatusUpdateData restRoomStatusUpdateData) {
+
+                        if (restRoomStatusUpdateData.isSuccess()) {
+                            restRoomView.onRestRoomStatusUpdate(restRoomStatusUpdateData);
+                        }
+                        restRoomView.showProgressDialog(false);
+                        restRoomView.showMessage(restRoomStatusUpdateData.getMessage());
+
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+
+                        restRoomView.showProgressDialog(false);
+                        restRoomView.showMessage(message);
+
+                    }
+                });
 
     }
 }

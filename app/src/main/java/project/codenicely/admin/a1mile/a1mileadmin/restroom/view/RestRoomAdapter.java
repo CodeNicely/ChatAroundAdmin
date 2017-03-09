@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,9 +33,11 @@ public class RestRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Context context;
     private LayoutInflater layoutInflater;
     private ImageLoader imageLoader;
+    private RestRoomFragment restRoomFragment;
 
-    RestRoomAdapter(Context context) {
+    RestRoomAdapter(Context context, RestRoomFragment restRoomFragment) {
         this.context = context;
+        this.restRoomFragment = restRoomFragment;
         layoutInflater = LayoutInflater.from(context);
         imageLoader = new GlideImageLoader(context);
     }
@@ -51,6 +52,12 @@ public class RestRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         View view = layoutInflater.inflate(R.layout.restroom_item, parent, false);
         return new RestroomViewHolder(view);
+    }
+
+    public void removeItem(int position) {
+
+        restRoomDetailsList.remove(position);
+
     }
 
     @Override
@@ -97,6 +104,30 @@ public class RestRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         restroomViewHolder.owner.setText("Restroom added by " + restRoomDetails.getUsername());
 
+        restroomViewHolder.verify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                restRoomFragment.updateRestRoomStatus(
+                        restRoomDetailsList.get(position).getId(),
+                        true,
+                        position);
+
+            }
+        });
+
+        restroomViewHolder.delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                restRoomFragment.updateRestRoomStatus(
+                        restRoomDetailsList.get(position).getId(),
+                        false,
+                        position);
+
+            }
+        });
+
         restroomViewHolder.getRoute.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,7 +143,6 @@ public class RestRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     }
-
 
 
     @Override
@@ -146,6 +176,12 @@ public class RestRoomAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @BindView(R.id.getRoute)
         Button getRoute;
+
+        @BindView(R.id.delete)
+        Button delete;
+
+        @BindView(R.id.verify)
+        Button verify;
 
         ImagesAdapter imagesAdapter;
 

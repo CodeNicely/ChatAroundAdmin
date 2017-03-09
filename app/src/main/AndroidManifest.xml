@@ -12,6 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+
+        </activity>
+
+        <activity android:name=".image_viewer.ImageViewerActivity" />
+
+        <activity android:name=".splash_screen.SplashScreen">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,7 +26,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".image_viewer.ImageViewerActivity" />
     </application>
 
 </manifest>

@@ -8,6 +8,6 @@ public interface RestRoomPresenter {
 
     void requestRestrooms(String admin_token);
 
-    void requestRestroomStatusUpdate(String admin_token,String restroom_id,boolean verify,int position);
+    void requestRestroomStatusUpdate(String adminToken,String restroomId,boolean verify,int position);
 
 }

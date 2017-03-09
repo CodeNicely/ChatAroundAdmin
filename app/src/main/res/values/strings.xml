@@ -2,4 +2,9 @@
     <string name="app_name">1MileAdmin</string>
     <string name="directions">Directions</string>
     <string name="address">Address</string>
+    <string name="verify">Verify</string>
+    <string name="cancle">Delete</string>
+    <string name="tagline">Things within 1 Mile ! :)</string>
+    <string name="powered_by">Powered By</string>
+    <string name="one_mile_admin">Verify Restrooms</string>
 </resources>

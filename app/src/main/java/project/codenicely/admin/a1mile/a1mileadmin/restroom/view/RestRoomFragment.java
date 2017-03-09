@@ -1,9 +1,12 @@
 package project.codenicely.admin.a1mile.a1mileadmin.restroom.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,7 +23,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import project.codenicely.admin.a1mile.a1mileadmin.R;
 import project.codenicely.admin.a1mile.a1mileadmin.helper.Keys;
+import project.codenicely.admin.a1mile.a1mileadmin.helper.SharedPrefs;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomDetails;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomStatusUpdateData;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.presenter.RestRoomPresenter;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.presenter.RestRoomPresenterImpl;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.provider.RetrofitRestRoomProvider;
@@ -49,14 +54,7 @@ public class RestRoomFragment extends Fragment implements RestRoomView {
     private static View view;
     private Context context;
     private RestRoomAdapter restRoomAdapter;
-
-
-    @BindView(R.id.progressBar)
-    ProgressBar progressBar;
-
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-
+    private RestRoomPresenter restRoomPresenter;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -66,6 +64,14 @@ public class RestRoomFragment extends Fragment implements RestRoomView {
     public RestRoomFragment() {
         // Required empty public constructor
     }
+
+    @BindView(R.id.progressBar)
+    ProgressBar progressBar;
+
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    private ProgressDialog progressDialog;
 
     /**
      * Use this factory method to create a new instance of
@@ -110,10 +116,17 @@ public class RestRoomFragment extends Fragment implements RestRoomView {
         /* map is already there, just return view as it is */
         }
 
+        context = getContext();
+
+
+        progressDialog = new ProgressDialog(context);
+
+        progressDialog.setTitle("Updating Servers . . .");
+        progressDialog.setMessage("Please Wait . . ");
+        progressDialog.setCancelable(false);
 
         ButterKnife.bind(this, view);
-        context = getContext();
-        restRoomAdapter = new RestRoomAdapter(context);
+        restRoomAdapter = new RestRoomAdapter(context, this);
 
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
@@ -121,7 +134,7 @@ public class RestRoomFragment extends Fragment implements RestRoomView {
         recyclerView.setAdapter(restRoomAdapter);
 
 
-        RestRoomPresenter restRoomPresenter = new RestRoomPresenterImpl(this, new RetrofitRestRoomProvider());
+        restRoomPresenter = new RestRoomPresenterImpl(this, new RetrofitRestRoomProvider());
         restRoomPresenter.requestRestrooms(Keys.KEY_ADMIN_TOKEN);
 
         return view;
@@ -176,6 +189,66 @@ public class RestRoomFragment extends Fragment implements RestRoomView {
         restRoomAdapter.setData(restRoomDetailsList);
         restRoomAdapter.notifyDataSetChanged();
 
+
+    }
+
+    @Override
+    public void showProgressDialog(boolean show) {
+
+        if (show) {
+            progressDialog.show();
+        } else {
+            progressDialog.hide();
+        }
+
+    }
+
+    @Override
+    public void onRestRoomStatusUpdate(RestRoomStatusUpdateData restRoomStatusUpdateData) {
+
+        if (restRoomStatusUpdateData.isSuccess()) {
+
+            restRoomAdapter.removeItem(restRoomStatusUpdateData.getPosition());
+            restRoomAdapter.notifyDataSetChanged();
+
+        }
+
+    }
+
+    public void updateRestRoomStatus(final String restRoomId, final boolean verify, final int position) {
+
+        String title, message;
+        if (verify) {
+            title = "Verify Restroom ?";
+            message = "Are you sure you want to Verify Restroom ?";
+        } else {
+            title = "Warning ! Delete Restroom ?";
+            message = "Are you sure you want to Delete Restroom ?";
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        restRoomPresenter.requestRestroomStatusUpdate(
+                                new SharedPrefs(context).getAdminToken(),
+                                restRoomId,
+                                verify,
+                                position
+                        );
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.cancel();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
 
     }
 

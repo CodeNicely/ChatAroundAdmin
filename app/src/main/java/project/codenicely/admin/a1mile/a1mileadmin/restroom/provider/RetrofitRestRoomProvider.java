@@ -5,8 +5,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import project.codenicely.admin.a1mile.a1mileadmin.helper.Urls;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.OnRestRoomApiResponse;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.OnRestRoomStatusUpdateResponse;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.api.RestRoomRequestApi;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.api.RestRoomStatusUpdateApi;
 import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomData;
+import project.codenicely.admin.a1mile.a1mileadmin.restroom.model.RestRoomStatusUpdateData;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -68,5 +71,37 @@ public class RetrofitRestRoomProvider implements RestRoomProvider {
                 onRestRoomApiResponse.onFailure("Something Went Wrong");
             }
         });
+    }
+
+    @Override
+    public void requestRestroomStatusUpdate(String adminToken,
+                                            String restroomId,
+                                            boolean verify,
+                                            int position,
+                                            final OnRestRoomStatusUpdateResponse onRestRoomStatusUpdateResponse) {
+
+        RestRoomStatusUpdateApi restRoomStatusUpdateApi = retrofit
+                .create(RestRoomStatusUpdateApi.class);
+
+        Call<RestRoomStatusUpdateData> call = restRoomStatusUpdateApi
+                .requestRestRoomStatusUpdate(adminToken, restroomId, verify, position);
+
+        call.enqueue(new Callback<RestRoomStatusUpdateData>() {
+            @Override
+            public void onResponse(Call<RestRoomStatusUpdateData> call,
+                                   Response<RestRoomStatusUpdateData> response) {
+
+                onRestRoomStatusUpdateResponse.onSuccess(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<RestRoomStatusUpdateData> call, Throwable t) {
+
+                t.printStackTrace();
+                onRestRoomStatusUpdateResponse.onFailure("Unable to connect to Servers. Please Check" +
+                        " your Connection");
+            }
+        });
+
     }
 }
